@@ -1,0 +1,4 @@
+class_A	class_B	auc
+nmf1	nmf2	1.0
+nmf1	nmf3	1.0
+nmf2	nmf3	0.9937629937629938

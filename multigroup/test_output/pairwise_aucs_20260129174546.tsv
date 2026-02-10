@@ -1,0 +1,4 @@
+class_A	class_B	auc
+Control	GroupA	1.0
+Control	GroupB	1.0
+GroupA	GroupB	1.0

@@ -1,0 +1,7 @@
+2026-01-28 15:00:32 INFO: Writing ad-hoc outputs to GBM_testcase/test_full
+2026-01-28 15:00:32 INFO: Ad-hoc predicted probabilities written.
+2026-01-28 15:00:32 INFO: Ranked samples plot written.
+2026-01-28 15:00:32 INFO: Classified samples: 29 / 29 (band-based threshold)
+2026-01-28 15:00:32 INFO: Confusion matrix written.
+2026-01-28 15:00:32 INFO: Evaluation results written.
+2026-01-28 15:00:32 INFO: Ad-hoc application outputs written to: GBM_testcase/test_full

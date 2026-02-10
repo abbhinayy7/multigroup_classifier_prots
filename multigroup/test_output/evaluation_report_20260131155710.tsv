@@ -1,0 +1,7 @@
+index	precision	recall	f1-score	support
+Control	1.0	1.0	1.0	26.0
+GroupA	1.0	1.0	1.0	29.0
+GroupB	1.0	1.0	1.0	37.0
+accuracy	1.0	1.0	1.0	1.0
+macro avg	1.0	1.0	1.0	92.0
+weighted avg	1.0	1.0	1.0	92.0

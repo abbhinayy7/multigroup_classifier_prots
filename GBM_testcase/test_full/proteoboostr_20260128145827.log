@@ -1,0 +1,11 @@
+2026-01-28 14:58:27 INFO: Writing ad-hoc outputs to GBM_testcase/test_full
+2026-01-28 14:58:27 INFO: Ad-hoc predicted probabilities written.
+2026-01-28 14:58:28 INFO: Ranked samples plot written.
+2026-01-28 14:58:28 INFO: Classified samples: 29 / 29 (band-based threshold)
+2026-01-28 14:58:28 INFO: Confusion matrix written.
+2026-01-28 14:58:28 ERROR: Failed while writing ad-hoc outputs: not enough values to unpack (expected 4, got 1)
+Traceback (most recent call last):
+  File "F:\ProteoBoostR\py_scripts\cli.py", line 477, in apply_command
+    tn, fp, fn, tp = cm.ravel()
+    ^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 4, got 1)

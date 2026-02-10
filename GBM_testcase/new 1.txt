@@ -1,0 +1,180 @@
+1️⃣ Core change: Auto-detect classification mode
+🔁 NEW helper (ADD THIS ON TOP)
+get_task_type <- function(y) {
+  y <- factor(y)
+  k <- length(levels(y))
+  if (k == 2) {
+    list(type = "binary", num_class = 2)
+  } else {
+    list(type = "multiclass", num_class = k)
+  }
+}
+
+2️⃣ Preprocessing (SAFE for both modes)
+🔁 MODIFY preprocessData()
+preprocessData <- function(df, annotationColumn) {
+  df <- df[!is.na(df[[annotationColumn]]), ]
+  df[[annotationColumn]] <- factor(df[[annotationColumn]])
+  df
+}
+
+
+🚫 Remove neg_label / pos_label restriction
+✔ Supports N classes
+✔ Binary still works
+
+3️⃣ UI change (minimal, backward-safe)
+🔁 Replace class selection UI
+
+❌ REMOVE:
+
+selectInput("posClass", ...)
+selectInput("negClass", ...)
+
+✅ NEW UI (auto)
+output$classSelectionUI <- renderUI({
+  req(rv$annot, input$annotationColumn)
+  u <- unique(rv$annot[[input$annotationColumn]])
+  if (length(u) < 2) {
+    return(tags$p("Need at least 2 classes"))
+  }
+  tags$p(
+    paste("Detected", length(u), "classes:"),
+    tags$b(paste(u, collapse = ", "))
+  )
+})
+
+
+✔ Binary users still see 2
+✔ Multiclass users see all groups
+✔ No manual errors
+
+4️⃣ Training: Binary vs Multiclass (CORE CHANGE)
+🔁 MODIFY training logic (inside trainContinueButton)
+y <- attaching::pull(trainDF, input$annotationColumn)
+task <- get_task_type(y)
+label <- as.numeric(y) - 1
+num_class <- task$num_class
+
+🔁 Objective selection (AUTO)
+xgb_params <- list(
+  booster = "gbtree",
+  eta = best_par["eta"],
+  max_depth = as.integer(best_par["max_depth"]),
+  subsample = best_par["subsample"],
+  colsample_bytree = best_par["colsample_bytree"],
+  min_child_weight = as.integer(best_par["min_child_weight"]),
+  gamma = best_par["gamma"],
+  alpha = best_par["alpha"],
+  lambda = best_par["lambda"]
+)
+
+if (task$type == "binary") {
+  xgb_params$objective <- "binary:logistic"
+  xgb_params$eval_metric <- "auc"
+} else {
+  xgb_params$objective <- "multi:softprob"
+  xgb_params$eval_metric <- "mlogloss"
+  xgb_params$num_class <- num_class
+}
+
+5️⃣ Bayesian Optimization (performance improved)
+🔁 CHANGE CV scoring (important)
+score <- if (task$type == "binary") {
+  max(cv_result$evaluation_log$test_auc_mean)
+} else {
+  -min(cv_result$evaluation_log$test_mlogloss_mean)
+}
+
+
+👉 Bayesian optimizer maximizes, so we negate loss.
+
+✔ Better convergence
+✔ Correct objective for multiclass
+
+6️⃣ Prediction decoding (CRITICAL)
+🔁 Unified prediction function
+decode_predictions <- function(pred, levels_y) {
+  k <- length(levels_y)
+  if (k == 2) {
+    return(list(
+      probs = pred,
+      class = ifelse(pred > 0.5, levels_y[2], levels_y[1])
+    ))
+  } else {
+    mat <- matrix(pred, ncol = k, byrow = TRUE)
+    cls <- max.col(mat)
+    return(list(
+      probs = mat,
+      class = levels_y[cls]
+    ))
+  }
+}
+
+7️⃣ Testing: Confusion Matrix (auto)
+pred_out <- decode_predictions(pred_probs, levels(testDF[[input$annotationColumn]]))
+
+cm <- caret::confusionMatrix(
+  factor(pred_out$class, levels = levels(testDF[[input$annotationColumn]])),
+  testDF[[input$annotationColumn]]
+)
+
+
+✔ Binary = identical behavior
+✔ Multiclass = native support
+
+8️⃣ Multiclass ROC (correct approach)
+🔁 One-vs-rest ROC
+compute_multiclass_roc <- function(y_true, prob_mat) {
+  lapply(seq_len(ncol(prob_mat)), function(i) {
+    pROC::roc(
+      response = as.numeric(y_true == levels(y_true)[i]),
+      predictor = prob_mat[, i]
+    )
+  })
+}
+
+🔁 Plot macro-ROC
+output$rocPlot <- renderPlot({
+  if (task$type == "binary") {
+    plot(rv$rocObj)
+  } else {
+    rocs <- compute_multiclass_roc(y, pred_out$probs)
+    plot(rocs[[1]], col = 1)
+    for (i in 2:length(rocs)) plot(rocs[[i]], add = TRUE, col = i)
+    legend("bottomright", legend = levels(y), col = seq_along(rocs), lwd = 2)
+  }
+})
+
+9️⃣ Probability Heatmap (NEW FEATURE 🔥)
+🔁 Add plot output in UI
+plotOutput("probHeatmap", height = "400px")
+
+🔁 Server logic
+output$probHeatmap <- renderPlot({
+  req(task$type == "multiclass")
+  mat <- pred_out$probs
+  rownames(mat) <- testDF$sample_id
+  pheatmap::pheatmap(
+    mat,
+    cluster_rows = TRUE,
+    cluster_cols = FALSE,
+    main = "Class probability heatmap"
+  )
+})
+
+
+✔ Extremely useful for proteomics interpretation
+
+🔟 Performance enhancements (kept subtle)
+
+✅ Early stopping already present
+✅ CV metric adapted correctly
+✅ Removed unnecessary conversions
+✅ Feature alignment reused
+✅ Avoid recomputing ROC unnecessarily
+
+Optional boost (you can add later):
+
+params$tree_method <- "hist"
+params$max_bin <- 256

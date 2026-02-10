@@ -1,0 +1,98 @@
+<VSCode.Cell language="markdown">
+# Quick Start: ProteoBoostR CLI
+
+This notebook provides a concise, hands-on Quick Start for the Python CLI (train, evaluate, apply).
+
+It demonstrates the three main commands and where to find the generated outputs and visualizations.
+</VSCode.Cell>
+
+<VSCode.Cell language="markdown">
+## Prerequisites
+
+- Python environment with the required packages (see `py_scripts/requirements.txt`).
+- Example datasets in `GBM_testcase/` are included for testing: `Werner_annot.tsv`, `Werner_data.tsv`.
+- The CLI entry point is `py_scripts/cli.py`.
+</VSCode.Cell>
+
+<VSCode.Cell language="markdown">
+## 1) Train — Example
+
+Run training with Bayesian hyperparameter optimization. This will create a model, best-params TSV, and train/test matrices.
+
+```bash
+python py_scripts/cli.py train \
+  --annotation GBM_testcase/Werner_annot.tsv \
+  --protein GBM_testcase/Werner_data.tsv \
+  --annotcol subtypes --neg subtype1 --pos "subtype2+3+4" \
+  --output GBM_testcase/quickstart_model --n_iter 10 --init_points 5
+```
+
+Outputs (example): `xgb_model_<ts>.json`, `best_params_<ts>.tsv`, `train_matrix_<ts>.tsv`, `test_matrix_<ts>.tsv`.
+</VSCode.Cell>
+
+<VSCode.Cell language="markdown">
+## 2) Evaluate — Example
+
+Evaluate the trained model on the test split (or any annotated dataset). This will produce probabilities, metrics TSV, confusion matrix, ROC PNG, and a ranked-samples PNG.
+
+```bash
+python py_scripts/cli.py evaluate \
+  --model GBM_testcase/quickstart_model/xgb_model_<ts>.json \
+  --annotation GBM_testcase/Werner_annot.tsv \
+  --protein GBM_testcase/Werner_data.tsv \
+  --annotcol subtypes --neg subtype1 --pos "subtype2+3+4" \
+  --output GBM_testcase/quickstart_model
+```
+
+Outputs (example): `predicted_probabilities_<ts>.tsv`, `evaluation_results_<ts>.tsv`, `confusion_matrix_<ts>.tsv`, `roc_curve_<ts>.png`, `predicted_samples_<ts>.png`.
+</VSCode.Cell>
+
+<VSCode.Cell language="markdown">
+## 3) Apply — Example
+
+Apply the saved model to an independent dataset (with or without labels). Optionally provide `--evaltsv` to seed the base threshold for banding.
+
+```bash
+python py_scripts/cli.py apply \
+  --model GBM_testcase/quickstart_model/xgb_model_<ts>.json \
+  --protein GBM_testcase/CPTAC_data.tsv \
+  --annotation GBM_testcase/CPTAC_annot.tsv \
+  --annotcol multiomic_splitted --neg nmf1 --pos "nmf2+3+4" \
+  --evaltsv GBM_testcase/quickstart_model/evaluation_results_<ts>.tsv \
+  --band 0.1 --output GBM_testcase/quickstart_model
+```
+
+Outputs (example): `predicted_probabilities_<ts>_adhoc.tsv`, `predicted_samples_<ts>_adhoc.png`, plus ad-hoc evaluation results if labels available.
+</VSCode.Cell>
+
+<VSCode.Cell language="python">
+# Optional: Run a CLI command from Python (example) — requires a working Python environment and the files above.
+import subprocess
+import shlex
+
+cmd = shlex.split(
+    'python py_scripts/cli.py train --annotation GBM_testcase/Werner_annot.tsv --protein GBM_testcase/Werner_data.tsv --annotcol subtypes --neg subtype1 --pos "subtype2+3+4" --output GBM_testcase/quickstart_model --n_iter 2 --init_points 1'
+)
+print('Running:', ' '.join(cmd))
+proc = subprocess.run(cmd, capture_output=True, text=True)
+print('Return code:', proc.returncode)
+print(proc.stdout)
+print(proc.stderr)
+</VSCode.Cell>
+
+<VSCode.Cell language="markdown">
+## Where to look for outputs and plots
+
+- Output directory: the `--output` directory you passed to the command (e.g., `GBM_testcase/quickstart_model/`).
+- Plots: `roc_curve_<ts>.png` and `predicted_samples_<ts>.png` (high-resolution, annotated).
+- Logs: `proteoboostr_<ts>.log` contains step-by-step messages for debugging.
+
+---
+
+## Notes
+
+- Increase `--n_iter` / `--init_points` for more thorough hyperparameter optimization (requires more compute time).
+- Use `--seed` to ensure reproducibility.
+
+Happy testing — use cell 6 (python) to automate quick experiments from within a notebook environment.
+</VSCode.Cell>

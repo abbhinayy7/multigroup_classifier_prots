@@ -1,0 +1,9 @@
+Add: Multigroup Classification Project and Python Scripts
+
+Added complete multigroup classification system:
+- multigroup/: Full multigroup classification implementation with test data and evaluation scripts
+- py_scripts/: Python ML pipeline for training, evaluation, and model application
+- Includes test outputs, models, ROC curves, and performance metrics
+- 91.3% accuracy on 3-class classification task
+
+This includes binary vs multigroup comparison test results and tools for proteomics data analysis.

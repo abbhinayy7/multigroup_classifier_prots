@@ -1,0 +1,11 @@
+param	value
+learning_rate	0.03484267780691985
+max_depth	2
+subsample	1.0
+colsample_bytree	0.3
+min_child_weight	6
+gamma	5.0
+reg_alpha	0.0
+reg_lambda	4.598424716217424
+n_estimators	1000
+objective	multi:softprob

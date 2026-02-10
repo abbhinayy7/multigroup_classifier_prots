@@ -1,0 +1,3 @@
+2026-01-28 15:06:19 INFO: Model saved to: GBM_testcase/final_model\xgb_model_20260128150619.json
+2026-01-28 15:06:19 INFO: Best hyperparameters written.
+2026-01-28 15:06:19 INFO: Final XGBoost model trained.

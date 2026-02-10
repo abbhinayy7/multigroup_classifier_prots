@@ -1,4 +1,4 @@
-Proteomics Classification Toolkit ✨
+# Proteomics Classification Toolkit 
 
 Welcome! This repository contains a complete Python reimplementation of the ProteoBoostR workflow (originally a Shiny app) for training, evaluating, and applying XGBoost classifiers to proteomics datasets. The Python CLI provides reproducible training (Bayesian hyperparameter optimization), thorough evaluation (ROC, AUC, confusion matrices), and application of models to new datasets with clear, publication-quality visualizations.
 

@@ -75,7 +75,32 @@ Why the Python version?
 
 ---
 
-## 🛠️ How Training Works (short)
+## � Docker Setup (Recommended for Reproducibility)
+
+For fully reproducible runs across environments, use Docker:
+
+```bash
+# Build the image
+docker build -f Dockerfile.multigroup -t multigroup_classifier:latest .
+
+# Run the default test (compares binary vs multigroup classification)
+docker run --rm -v "$(pwd)/output:/app/output" \
+  --memory=8g --cpus=4 multigroup_classifier:latest
+
+# Open an interactive shell to explore
+docker run --rm -it -v "$(pwd):/app" multigroup_classifier:latest /bin/bash
+```
+
+**Benefits:**
+- Same Python 3.11 + dependencies everywhere (Windows, macOS, Linux)
+- No local dependency conflicts
+- Isolated environment for testing
+
+For full Docker instructions, resource limits, volume mounting, and troubleshooting, see **[README_DOCKER.md](README_DOCKER.md)**.
+
+---
+
+## �🛠️ How Training Works (short)
 
 - Data merge: annotation (samples) + protein matrix (features)
 - Preprocessing: filter classes, convert to numeric, remove NA-heavy features

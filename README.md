@@ -164,13 +164,4 @@ For details, see `py_scripts/TRAINING_REPORT.md`.
 
 ---
 
-## 🙋 Need help or want enhancements?
 
-Open an issue or reach out via your project's usual channels. If you'd like, I can:
-- Add unit tests for preprocessing and plotting
-- Add a lightweight web UI for quick review of outputs
-- Create a Dockerized Python image for deployment
-
----
-
-Thanks for using ProteoBoostR — enjoy reproducible, publication-quality proteomics classification! 💡

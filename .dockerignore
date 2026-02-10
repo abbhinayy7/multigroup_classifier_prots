@@ -1,0 +1,10 @@
+.git
+.git_backup_*
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.swp
+multigroup/test_output/
+GBM_testcase/ProteoBoostR_output/
+py_scripts/__pycache__/

@@ -162,26 +162,22 @@ For details, see `py_scripts/TRAINING_REPORT.md`.
 - `GBM_testcase/improved_model/` — example of a finalized, high-quality model and visuals
 - `IMPROVED_MODEL_REPORT.md` & `COMPLETE_STATUS_REPORT.md` — detailed analysis and results
 
-## 📊 Visual Pipeline
+## Simple Explanation — How it works (short)
 
-For a concise visual overview of the project's workflow and decision points, see [FLOWCHART.md](FLOWCHART.md).
+This project trains and evaluates an XGBoost classifier on proteomics data. In simple terms:
 
-You can also view the embedded Mermaid diagram directly in this README (GitHub supports Mermaid rendering):
+- Input: two files — an annotation table (sample IDs and labels) and a protein matrix (samples × proteins).
+- Preprocessing: filter features with many missing values, convert data to numeric, impute missing values, and standardize.
+- Split: stratified train/test split (default 75% train / 25% test).
+- Hyperparameter tuning: Bayesian optimization (8 random starts + 5 bayesian iterations) using 5-fold CV to pick good XGBoost settings.
+- Final training: fit XGBoost with early stopping on the training set (final model saved as `xgb_model_*.json`).
+- Evaluation: compute accuracy, precision, recall, F1, AUC; save ROC plots and confusion matrices.
 
-```mermaid
-flowchart LR
-  A[Annotation TSV\n(sample_id, annotcol)] --> M[Data Merge]
-  B[Protein Matrix TSV\n(samples × proteins)] --> M
-  M --> P[Preprocessing\nfilter NAs, normalize, impute]
-  P --> S[Train/Test Split\n(75/25 stratified)]
-  S --> MULTI[Multigroup Training\n(Best CV=0.6250) --> Accuracy 91.30%]
-  S --> BINARY[Binary Training\n(GBM Werner) --> FAILED: NaN]
-  MULTI --> OUT[Outputs: model.json, best_params.tsv, roc.png, confusion_matrix.tsv]
-  OUT --> DOCK[Docker image\nDockerfile.multigroup]
-```
+Why the multigroup test succeeded and binary failed in our runs:
+- Multigroup used 92 samples with balanced classes and achieved **91.30% accuracy** on the held-out set.
+- Binary test (GBM Werner) had only 55 samples with extreme imbalance (11 vs 44), which caused NaNs during cross-validation; fix by adding samples, using class weights or oversampling.
 
-For a downloadable visual (PNG/SVG) or a larger rendered diagram, open [FLOWCHART.md](FLOWCHART.md).
+For a compact visual overview, see `FLOWCHART.md` (or `README_DOCKER.md` for deployment instructions).
 
----
 
 

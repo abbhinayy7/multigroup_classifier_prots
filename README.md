@@ -162,6 +162,26 @@ For details, see `py_scripts/TRAINING_REPORT.md`.
 - `GBM_testcase/improved_model/` — example of a finalized, high-quality model and visuals
 - `IMPROVED_MODEL_REPORT.md` & `COMPLETE_STATUS_REPORT.md` — detailed analysis and results
 
+## 📊 Visual Pipeline
+
+For a concise visual overview of the project's workflow and decision points, see [FLOWCHART.md](FLOWCHART.md).
+
+You can also view the embedded Mermaid diagram directly in this README (GitHub supports Mermaid rendering):
+
+```mermaid
+flowchart LR
+  A[Annotation TSV\n(sample_id, annotcol)] --> M[Data Merge]
+  B[Protein Matrix TSV\n(samples × proteins)] --> M
+  M --> P[Preprocessing\nfilter NAs, normalize, impute]
+  P --> S[Train/Test Split\n(75/25 stratified)]
+  S --> MULTI[Multigroup Training\n(Best CV=0.6250) --> Accuracy 91.30%]
+  S --> BINARY[Binary Training\n(GBM Werner) --> FAILED: NaN]
+  MULTI --> OUT[Outputs: model.json, best_params.tsv, roc.png, confusion_matrix.tsv]
+  OUT --> DOCK[Docker image\nDockerfile.multigroup]
+```
+
+For a downloadable visual (PNG/SVG) or a larger rendered diagram, open [FLOWCHART.md](FLOWCHART.md).
+
 ---
 
 
